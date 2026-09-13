@@ -3,3 +3,5 @@ Listings/
 DebugConfig/
 *.uvguix.*
 *.bak
+.vscode/*.log
+.vscode/*.lock
