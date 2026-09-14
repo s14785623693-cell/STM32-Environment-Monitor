@@ -39,11 +39,11 @@ static void DHT11_GPIO_In(void)
 /**
   * 函    数：DHT11发送开始信号
   */
-void DHT11_Start(void)
+static void DHT11_Start(void)
 {
     DHT11_GPIO_Out();
 
-    // 主机拉低至少18ms
+    // 主机拉低20ms
     DHT11_DQ_OUT(0);
     Delay_ms(20);
 
@@ -58,7 +58,7 @@ void DHT11_Start(void)
   * 返回值：0：正常
   *         1：错误
   */
-uint8_t DHT11_CheckResponse(void)
+static uint8_t DHT11_CheckResponse(void)
 {
     uint8_t retry = 0;
 
@@ -95,10 +95,10 @@ uint8_t DHT11_CheckResponse(void)
 
 
 /**
-  * 函    数：读取DHT11的一位数据
+  * 函    数：读取DHT11一位数据
   * 返回值：0或1
   */
-uint8_t DHT11_ReadBit(void)
+static uint8_t DHT11_ReadBit(void)
 {
     uint8_t retry = 0;
 
@@ -118,7 +118,7 @@ uint8_t DHT11_ReadBit(void)
         Delay_us(1);
     }
 
-    // 40us后采样
+    // 延时40us后采样
     Delay_us(40);
 
     if (DHT11_DQ_IN)
@@ -136,7 +136,7 @@ uint8_t DHT11_ReadBit(void)
   * 函    数：读取DHT11一个字节
   * 返回值：读取到的数据
   */
-uint8_t DHT11_ReadByte(void)
+static uint8_t DHT11_ReadByte(void)
 {
     uint8_t i;
     uint8_t data = 0;
@@ -144,7 +144,6 @@ uint8_t DHT11_ReadByte(void)
     for (i = 0; i < 8; i++)
     {
         data <<= 1;
-
         data |= DHT11_ReadBit();
     }
 
@@ -159,10 +158,7 @@ uint8_t DHT11_ReadByte(void)
   * 返回值：0：读取成功
   *         1：读取失败
   */
-uint8_t DHT11_ReadData(uint8_t *humi_int,
-                       uint8_t *humi_dec,
-                       uint8_t *temp_int,
-                       uint8_t *temp_dec)
+uint8_t DHT11_ReadData(uint8_t *humi, uint8_t *temp)
 {
     uint8_t data[5];
     uint8_t i;
@@ -182,18 +178,15 @@ uint8_t DHT11_ReadData(uint8_t *humi_int,
         data[i] = DHT11_ReadByte();
     }
 
-    // 校验
+    // 校验数据
     if ((uint8_t)(data[0] + data[1] + data[2] + data[3]) != data[4])
     {
         return 1;
     }
 
-    // 分别保存整数和小数
-    *humi_int = data[0];
-    *humi_dec = data[1];
-
-    *temp_int = data[2];
-    *temp_dec = data[3];
+    // 获取湿度和温度整数部分
+    *humi = data[0];
+    *temp = data[2];
 
     return 0;
 }
@@ -206,7 +199,9 @@ void DHT11_Init(void)
 {
     DHT11_GPIO_Out();
 
+    // 数据线默认拉高
     DHT11_DQ_OUT(1);
 
+    // 等待DHT11稳定
     Delay_ms(1000);
 }

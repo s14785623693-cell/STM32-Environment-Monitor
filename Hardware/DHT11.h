@@ -14,17 +14,6 @@
 
 void DHT11_Init(void);
 
-void DHT11_Start(void);
-
-uint8_t DHT11_CheckResponse(void);
-
-uint8_t DHT11_ReadBit(void);
-
-uint8_t DHT11_ReadByte(void);
-
-uint8_t DHT11_ReadData(uint8_t *humi_int,
-                       uint8_t *humi_dec,
-                       uint8_t *temp_int,
-                       uint8_t *temp_dec);
+uint8_t DHT11_ReadData(uint8_t *humi, uint8_t *temp);
 
 #endif
