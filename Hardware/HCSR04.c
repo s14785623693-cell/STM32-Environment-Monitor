@@ -9,13 +9,11 @@
 #define HCSR04_ECHO_PORT GPIOA
 #define HCSR04_ECHO_PIN GPIO_Pin_6
 
-
 static uint16_t StartTime;
 static uint16_t EchoTime;
 
 static uint8_t CaptureState;
 static uint8_t MeasureFinish;
-
 
 
 /**
@@ -27,7 +25,6 @@ static void HCSR04_GPIO_Init(void)
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 
-
     // TRIG输出
     GPIO_InitStructure.GPIO_Pin = HCSR04_TRIG_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -35,17 +32,14 @@ static void HCSR04_GPIO_Init(void)
 
     GPIO_Init(HCSR04_TRIG_PORT, &GPIO_InitStructure);
 
-
     // ECHO输入
     GPIO_InitStructure.GPIO_Pin = HCSR04_ECHO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 
     GPIO_Init(HCSR04_ECHO_PORT, &GPIO_InitStructure);
 
-
     GPIO_ResetBits(HCSR04_TRIG_PORT, HCSR04_TRIG_PIN);
 }
-
 
 
 /**
@@ -57,18 +51,14 @@ static void HCSR04_TIM_Init(void)
 {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
-
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-
 
     TIM_TimeBaseStructure.TIM_Prescaler = 71;
     TIM_TimeBaseStructure.TIM_Period = 65535;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 
-
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-
 
     TIM_Cmd(TIM3, ENABLE);
 }
@@ -82,17 +72,14 @@ static void HCSR04_IC_Init(void)
 {
     TIM_ICInitTypeDef TIM_ICInitStructure;
 
-
     TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;
     TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;
     TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
     TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
     TIM_ICInitStructure.TIM_ICFilter = 0;
 
-
     TIM_ICInit(TIM3, &TIM_ICInitStructure);
 }
-
 
 
 /**
@@ -102,17 +89,14 @@ static void HCSR04_SetCaptureEdge(uint16_t Edge)
 {
     TIM_ICInitTypeDef TIM_ICInitStructure;
 
-
     TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;
     TIM_ICInitStructure.TIM_ICPolarity = Edge;
     TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
     TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
     TIM_ICInitStructure.TIM_ICFilter = 0;
 
-
     TIM_ICInit(TIM3, &TIM_ICInitStructure);
 }
-
 
 
 /**
@@ -122,15 +106,12 @@ static void HCSR04_NVIC_Init(void)
 {
     NVIC_InitTypeDef NVIC_InitStructure;
 
-
     NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
-
     NVIC_Init(&NVIC_InitStructure);
-
 
     TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
 }
@@ -147,7 +128,6 @@ void HCSR04_Init(void)
     HCSR04_IC_Init();
     HCSR04_NVIC_Init();
 }
-
 
 
 /**
@@ -173,25 +153,20 @@ float HCSR04_GetDistance(void)
 {
     uint32_t Timeout = 30000;
 
-
     EchoTime = 0;
     MeasureFinish = 0;
 
-
     HCSR04_Trig();
-
 
     while(!MeasureFinish && Timeout--)
     {
         Delay_us(1);
     }
 
-
     if(Timeout == 0)
     {
         return 0;
     }
-
 
     return EchoTime * 0.034f / 2;
 }
@@ -205,7 +180,6 @@ void TIM3_IRQHandler(void)
 {
     if(TIM_GetITStatus(TIM3, TIM_IT_CC1) == SET)
     {
-
         if(CaptureState == 0)
         {
             StartTime = TIM_GetCapture1(TIM3);
@@ -224,7 +198,6 @@ void TIM3_IRQHandler(void)
 
             HCSR04_SetCaptureEdge(TIM_ICPolarity_Rising);
         }
-
 
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
     }
