@@ -5,3 +5,4 @@ DebugConfig/
 *.bak
 .vscode/*.log
 .vscode/*.lock
+*.uvoptx
