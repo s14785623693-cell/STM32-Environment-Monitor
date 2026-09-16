@@ -25,43 +25,46 @@ int main(void)
         // DHT11
         if(DHT11_ReadData(&Humidity, &Temperature) == 0)
         {
-            OLED_ShowString(2, 1, "Temp:");
-            OLED_ShowNum(2, 6, Temperature, 2);
-            OLED_ShowString(2, 8, "C");
+            OLED_ShowString(2, 1, "T:");
+            OLED_ShowNum(2, 3, Temperature, 2);
+            OLED_ShowString(2, 5, "C");
 
-            OLED_ShowString(3, 1, "Humi:");
-            OLED_ShowNum(3, 6, Humidity, 2);
-            OLED_ShowString(3, 8, "%");
+            OLED_ShowString(2, 7, "H:");
+            OLED_ShowNum(2, 9, Humidity, 2);
+            OLED_ShowString(2, 11, "%");
         }
         else
         {
-            OLED_ShowString(2, 1, "Temp:ERROR");
-            OLED_ShowString(3, 1, "Humi:ERROR");
+            OLED_ShowString(2, 1, "T:ERROR H:ERROR");
         }
 
         // HC-SR04
         Distance = HCSR04_GetDistance();
 
-        OLED_ShowString(4, 1, "Dist:");
+        OLED_ShowString(3, 1, "Dist:");
 
         if(Distance == 0)
         {
-            OLED_ShowString(4, 6, "ERROR");
+            OLED_ShowString(3, 6, "ERROR");
         }
         else
         {
-            OLED_ShowNum(4, 6, (uint16_t)Distance, 3);
-            OLED_ShowString(4, 9, "cm");
+            OLED_ShowNum(3, 6, (uint16_t)Distance, 3);
+            OLED_ShowString(3, 9, "cm");
         }
 
-        // 蜂鸣器报警
+        // 报警状态
+        OLED_ShowString(4, 1, "Status:");
+
         if(Temperature > 35 || Humidity > 80 || Distance < 10)
         {
             Buzzer_ON();
+            OLED_ShowString(4, 8, "ALERT");
         }
         else
         {
             Buzzer_OFF();
+            OLED_ShowString(4, 8, "OK   ");
         }
 
         // 串口输出
